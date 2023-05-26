@@ -1,0 +1,201 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyM/PCTIlYV7XSsUK99vQVGW",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/kabs9000/-Building-a-Web-App-with-ASP.NET-Core-5-MVC-Entity-Framework-Core-Bootstrap-and-Angular/blob/main/GPT2%20clone%2C%20following%20tutorial\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "aoGtEPqqWfb-",
+        "outputId": "a705bfab-9c5c-4394-bf99-348ee908fa8d"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "--2023-05-26 20:47:12--  https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt\n",
+            "Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 185.199.109.133, 185.199.111.133, 185.199.108.133, ...\n",
+            "Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|185.199.109.133|:443... connected.\n",
+            "HTTP request sent, awaiting response... 200 OK\n",
+            "Length: 1115394 (1.1M) [text/plain]\n",
+            "Saving to: ‘input.txt.3’\n",
+            "\n",
+            "\rinput.txt.3           0%[                    ]       0  --.-KB/s               \rinput.txt.3         100%[===================>]   1.06M  --.-KB/s    in 0.05s   \n",
+            "\n",
+            "2023-05-26 20:47:12 (19.9 MB/s) - ‘input.txt.3’ saved [1115394/1115394]\n",
+            "\n"
+          ]
+        }
+      ],
+      "source": [
+        "#dataset being trained on- the whole shakespeare dataset\n",
+        "!wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "with open('input.txt', 'r', encoding='utf-8') as f:\n",
+        "    text = f.read()"
+      ],
+      "metadata": {
+        "id": "D5jPEckNxqdS"
+      },
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "print(\"length of dataset in characters: \", len(text))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "p-IJ8xo4xuOM",
+        "outputId": "29c99e38-831d-42f6-e0c3-276287e0bdfc"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "length of dataset in characters:  1115394\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# 1st 1000 char\n",
+        "print(\"1st 1000 chars are: \\n\",text[:1000])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "ise1WHHhxz72",
+        "outputId": "c31fe726-8a65-47df-ab03-f4b035853481"
+      },
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "1st 1000 chars are: \n",
+            " First Citizen:\n",
+            "Before we proceed any further, hear me speak.\n",
+            "\n",
+            "All:\n",
+            "Speak, speak.\n",
+            "\n",
+            "First Citizen:\n",
+            "You are all resolved rather to die than to famish?\n",
+            "\n",
+            "All:\n",
+            "Resolved. resolved.\n",
+            "\n",
+            "First Citizen:\n",
+            "First, you know Caius Marcius is chief enemy to the people.\n",
+            "\n",
+            "All:\n",
+            "We know't, we know't.\n",
+            "\n",
+            "First Citizen:\n",
+            "Let us kill him, and we'll have corn at our own price.\n",
+            "Is't a verdict?\n",
+            "\n",
+            "All:\n",
+            "No more talking on't; let it be done: away, away!\n",
+            "\n",
+            "Second Citizen:\n",
+            "One word, good citizens.\n",
+            "\n",
+            "First Citizen:\n",
+            "We are accounted poor citizens, the patricians good.\n",
+            "What authority surfeits on would relieve us: if they\n",
+            "would yield us but the superfluity, while it were\n",
+            "wholesome, we might guess they relieved us humanely;\n",
+            "but they think we are too dear: the leanness that\n",
+            "afflicts us, the object of our misery, is as an\n",
+            "inventory to particularise their abundance; our\n",
+            "sufferance is a gain to them Let us revenge this with\n",
+            "our pikes, ere we become rakes: for the gods know I\n",
+            "speak this in hunger for bread, not in thirst for revenge.\n",
+            "\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chars = sorted(list(set(text)))\n",
+        "vocab_size = len(chars)\n",
+        "print(''.join(chars))\n",
+        "print(vocab_size)"
+      ],
+      "metadata": {
+        "id": "an1bnXpLyF-j",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "11c39302-341d-407d-af6e-5a1661064ef2"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            " !$&',-.3:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n",
+            "65\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "Ckg1Z2hPz7MA"
+      },
+      "execution_count": 5,
+      "outputs": []
+    }
+  ]
+}
